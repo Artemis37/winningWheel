@@ -1,27 +1,44 @@
-body {
-  width: 100vw;
-  height: 100vh;
-}
-
 #outer {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background: url(./images/bg.jpg);
+  background-position: center;
+  background-size: cover;
 }
 
 #canvasContainer {
   position: relative;
-  width: 450px; /* Width and height should at least be the same as the canvas */
-  height: 450px;
+  width: 900px; /* Width and height should at least be the same as the canvas */
+  height: 900px;
 }
 
 #prizePointer {
   position: absolute;
-  left: 396px;
-  top: 176px;
+  left: 735px;
+  top: 310px;
   z-index: 999;
-  transform: rotate(90deg);
+  transform: rotate(270deg) scale(0.55);
+}
+
+#add_container {
+  position: absolute;
+  right: -351px;
+  top: 289px;
+  max-width: 409px;
+}
+
+#add_container textarea {
+  margin-bottom: 15px;
+}
+
+.btn-primary {
+  background-color: #fd79a8;
+  border-color: #e84393;
+}
+
+.btn-primary:hover {
+  background-color: #e84393;
 }

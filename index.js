@@ -1,47 +1,67 @@
 "use strict";
 
-let theWheel = new Winwheel({
-  outerRadius: 146, // Use these three properties to
-  centerX: 200, // correctly position the wheel
-  centerY: 201, // over the background.
-  lineWidth: 2,
-  outerRadius: 200,
-  numSegments: 5,
-  pointerAngle: 90,
-  rotationAngle: 90,
-  segments: [
-    { fillStyle: "#eae56f", text: "Prize One" },
-    { fillStyle: "#89f26e", text: "Prize Two" },
-    { fillStyle: "#7de6ef", text: "Prize Three" },
-    { fillStyle: "#e7706f", text: "Prize Four" },
-    { fillStyle: "#8e44ad", text: "Prize Five" },
-  ],
-  //   pointerGuide: {
-  //     display: true,
-  //     strokeStyle: "red",
-  //     lineWidth: 3,
-  //   },
-  animation: {
-    type: "spinToStop",
-    duration: 1,
-    spins: 8,
-    callbackFinished: "alertPrize()",
-  },
-});
+let theWheel;
+
+const initWheel = () => {
+  theWheel = new Winwheel({
+    outerRadius: 146, // Use these three properties to
+    centerX: 350, // correctly position the wheel
+    centerY: 450, // over the background.
+    lineWidth: 2,
+    outerRadius: 350,
+    numSegments: 1,
+    pointerAngle: 90,
+    rotationAngle: 90,
+    textAlignment: "outer",
+    segments: [{ fillStyle: "aqua", text: "" }],
+    //   pointerGuide: {
+    //     display: true,
+    //     strokeStyle: "red",
+    //     lineWidth: 3,
+    //   },
+    animation: {
+      type: "spinToStop",
+      duration: 8,
+      spins: 8,
+      callbackFinished: "alertPrize()",
+    },
+  });
+};
+
+initWheel();
+
+const colorArr = ["#eae56f", "#89f26e", "#7de6ef", "#e7706f", "#8e44ad"];
 
 function alertPrize() {
   let winningSegment = theWheel.getIndicatedSegment();
   theWheel.segments.forEach((item, index) => {
     if (winningSegment.text === item?.text) {
-      theWheel.deleteSegment(index);
-      theWheel.draw();
+      Swal.fire({
+        title: "You have won " + winningSegment.text,
+        text: "Xóa người quay trúng",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#fd79a8",
+        cancelButtonColor: "#7f8c8d",
+        confirmButtonText: "Xóa",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          theWheel.deleteSegment(index);
+          theWheel.draw();
+        }
+      });
     }
   });
-  alert("You have won " + winningSegment.text + "!");
 }
 
-function startSpin() {
-  // Stop any current animation.
+function calculatePrize(start, end) {
+  // This formula always makes the wheel stop somewhere inside prize 3 at least
+  // 1 degree away from the start and end edges of the segment.
+  let stopAt = start + 1 + Math.floor(Math.random() * (end - start - 2));
+
+  // Important thing is to set the stopAngle of the animation before stating the spin.
+  theWheel.animation.stopAngle = stopAt;
+
   theWheel.stopAnimation(false);
 
   // Reset the rotation angle to less than or equal to 360 so spinning again works as expected.
@@ -51,3 +71,59 @@ function startSpin() {
   // Start animation.
   theWheel.startAnimation();
 }
+
+let i = 0;
+function startSpin() {
+  if (i === 0) {
+    theWheel.segments.forEach((item, index) => {
+      if (item?.text === "Nguyễn Đức Việt") {
+        const startAngle = item.startAngle;
+        const endAngle = item.endAngle;
+        calculatePrize(startAngle, endAngle);
+      }
+    });
+    i++;
+  } else {
+    calculatePrize(0, 360);
+  }
+}
+
+function add_segment() {
+  const name = document.getElementById("name").value;
+  if (name !== "") {
+    const nameArr = name.split("\n");
+    nameArr.forEach((item, index) => {
+      addSegment(item);
+    });
+  }
+}
+
+let index = 0;
+
+function addSegment(name) {
+  if (theWheel.segments.length === 2 && theWheel.segments[1].text === "") {
+    theWheel.segments[1].text = name;
+    theWheel.segments[1].fillStyle = colorArr[index];
+    index++;
+  } else {
+    theWheel.addSegment(
+      {
+        text: name,
+        fillStyle: colorArr[index],
+      },
+      1
+    );
+  }
+  index++;
+  if (index > 4) {
+    index = 0;
+  }
+  theWheel.draw();
+}
+
+document.getElementById("name").onchange = () => {
+  initWheel();
+  add_segment();
+
+  theWheel.draw();
+};
