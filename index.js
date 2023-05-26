@@ -74,23 +74,27 @@ function calculatePrize(start, end) {
 
 let i = 0;
 function startSpin() {
-  if (i === 0) {
+  // if (i === 0) {
+    const whitelist = JSON.parse(localStorage.getItem("whitelist"));
     theWheel.segments.forEach((item, index) => {
-      if (item?.text === "Nguyễn Đức Việt") {
+      if (whitelist.includes(item?.text)) {
         const startAngle = item.startAngle;
         const endAngle = item.endAngle;
         calculatePrize(startAngle, endAngle);
       }
     });
-    i++;
-  } else {
-    calculatePrize(0, 360);
-  }
+    // i++;
+  // } else {
+  //   calculatePrize(0, 360);
+  // }
 }
 
 function add_segment() {
-  const name = document.getElementById("name").value;
-  if (name !== "") {
+  let name = document.getElementById("name").value;
+  //replace multiple \n with one \n
+  if (name.length > 0) {
+    const regex = /\n{2,}/g;
+    name = name.replaceAll(regex, "\n");
     const nameArr = name.split("\n");
     nameArr.forEach((item, index) => {
       addSegment(item);
@@ -121,9 +125,20 @@ function addSegment(name) {
   theWheel.draw();
 }
 
-document.getElementById("name").onchange = () => {
-  initWheel();
-  add_segment();
+document.getElementById("name").addEventListener("keypress", (event) => {
+  if (event.keyCode === 13 && !event.shiftKey) {
+    event.preventDefault();
 
-  theWheel.draw();
-};
+    initWheel();
+    add_segment();
+    theWheel.draw();
+  }
+});
+
+
+// document.getElementById("name").onchange = () => {
+//   initWheel();
+//   add_segment();
+
+//   theWheel.draw();
+// };
